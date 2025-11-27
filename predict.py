@@ -36,19 +36,19 @@ def process_tif(tif_path, model, output_path):
 
     # Convertimos todo a formato compatible con YOLO
     def prepare_frame(frame):
-        # Si es uint16, convertir a 0-255
         if frame.dtype == np.uint16:
             frame = (frame / 256).astype(np.uint8)
         elif frame.dtype != np.uint8:
             frame = frame.astype(np.uint8)
 
-        # Grayscale → 3 canales
         if frame.ndim == 2:
             frame = np.stack([frame]*3, axis=-1)
 
-        # Normalizar contraste similar a JPG
         p2, p98 = np.percentile(frame, (2, 98))
-        frame = np.clip((frame - p2) * 255.0 / (p98 - p2), 0, 255).astype(np.uint8)
+        if p98 - p2 < 1e-6:  # evita dividir por cero
+            frame = np.zeros_like(frame)
+        else:
+            frame = np.clip((frame - p2) * 255.0 / (p98 - p2), 0, 255).astype(np.uint8)
         return frame
 
     H, W = img_stack[0].shape[:2]

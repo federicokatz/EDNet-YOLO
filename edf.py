@@ -139,7 +139,8 @@ def nms(boxes, overlapThresh):
 
 class EDF(torch.nn.Module):
   def __init__(self, model_config_path, models_dir,
-               ensemble_option='consensus'):
+               ensemble_option='consensus',
+               conf_threshold=0.3):
     """Load all checkpoints into a single ensemble model.
     Args:
       model_config_path (str): Path to model config file.
@@ -155,6 +156,7 @@ class EDF(torch.nn.Module):
       model = models.load_model(model_config_path, checkpoint)
       self.models.append(model)
     self.ensemble_option = ensemble_option
+    self.conf_threshold = conf_threshold
 
   @property
   def num_models(self):
@@ -164,7 +166,7 @@ class EDF(torch.nn.Module):
     H, W = im.shape[:2]
     all_boxes = []
     for model in self.models:
-      group = detect.detect_image(model, im, conf_thres=.3, nms_thres=.7)
+      group = detect.detect_image(model, im, conf_thres=self.conf_threshold, nms_thres=.7)
 
       group[:, [0, 2]] = np.round(group[:, [0, 2]].clip(0, W))
       group[:, [1, 3]] = np.round(group[:, [1, 3]].clip(0, H))

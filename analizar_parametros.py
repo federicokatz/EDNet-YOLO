@@ -8,9 +8,7 @@ from tqdm import tqdm
 from edf import EDF
 
 
-# ================================================================
-#   PIPELINE A  →  Normalización real para YOLO
-# ================================================================
+#   Normalización real para YOLO
 def normalize_16bit_to_8bit(img):
     """Normalización correcta para imágenes de microscopía uint16."""
     p1, p99 = np.percentile(img, (1, 99))
@@ -20,9 +18,7 @@ def normalize_16bit_to_8bit(img):
     return (img * 255).astype(np.uint8)
 
 
-# ================================================================
-#   PIPELINE B  →  Procesamiento de Ground Truth
-# ================================================================
+#   Procesamiento de Ground Truth
 def binarize_and_count(gt_path):
     """Carga GT, binariza todo >0 como célula y cuenta objetos."""
     img = tiff.imread(gt_path)
@@ -42,14 +38,12 @@ def binarize_and_count(gt_path):
     return num_labels - 1
 
 
-# ================================================================
-#   PREDICCIÓN CON YOLO + PIPELINE A
-# ================================================================
+#   PREDICCIÓN CON YOLO
 def process_image_with_yolo(image_path, model):
     img_stack = tiff.imread(image_path)
     img = img_stack[0] if img_stack.ndim == 3 else img_stack
 
-    # Normalizar uint16 → uint8
+    # Normalizar uint16 a uint8
     if img.dtype == np.uint16:
         img = normalize_16bit_to_8bit(img)
 
@@ -61,9 +55,6 @@ def process_image_with_yolo(image_path, model):
     return len(boxes)
 
 
-# ================================================================
-#   MAIN COMPLETO
-# ================================================================
 def main():
     data_dir = '../Fluo-N2DL-HeLa (1)/Fluo-N2DL-HeLa/02'
     gt_dir = '../Fluo-N2DL-HeLa (1)/Fluo-N2DL-HeLa/02_GT/TRA'
@@ -77,12 +68,9 @@ def main():
 
     results = {param: [] for param in param_combinations}
 
-    print(f"\n📌 Se procesarán {len(image_files)} imágenes")
-    print(f"📌 Total combinaciones: {len(param_combinations)}\n")
+    print(f"\nSe procesarán {len(image_files)} imágenes")
+    print(f"Total combinaciones: {len(param_combinations)}\n")
 
-    # ------------------------------------------------------------
-    # LOOP PRINCIPAL
-    # ------------------------------------------------------------
     for ensemble_option, conf_thres in param_combinations:
         print(f"\n========== Procesando ensemble='{ensemble_option}', "
               f"conf_thres={conf_thres} ==========")
@@ -108,17 +96,10 @@ def main():
         avg_error = np.mean(results[(ensemble_option, conf_thres)])
         print(f"➡ Promedio de error: {avg_error:.2f}")
 
-    # ------------------------------------------------------------
-    # RESUMEN FINAL
-    # ------------------------------------------------------------
     print("\n================ RESUMEN FINAL ================\n")
     for param, errors in results.items():
         avg_error = np.mean(errors)
         print(f"{param}:  error_promedio = {avg_error:.2f}")
 
-
-# ================================================================
-#   ENTRY POINT
-# ================================================================
 if __name__ == '__main__':
     main()

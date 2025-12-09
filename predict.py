@@ -17,7 +17,7 @@ def main():
 
     args = parser.parse_args()
 
-    model = EDF(args.model_config_path, args.model_ckpt_dir)
+    model = EDF(args.model_config_path, args.model_ckpt_dir, ensemble_option='affirmative', conf_threshold=0.4)
     os.makedirs(args.output_dir, exist_ok=True)
 
     files = sorted(glob.glob(os.path.join(args.data_root_dir, '*.tif')))
@@ -28,7 +28,7 @@ def main():
     for tif_path in files:
         tif_name = os.path.splitext(os.path.basename(tif_path))[0]
         print(f'{"-"*10} {tif_name} {"-"*10}')
-        output_path = os.path.join(args.output_dir, tif_name + '.txt')
+        output_path = os.path.join(args.output_dir, tif_name + '-affirmative-0.4.txt')
         process_tif(tif_path, model, output_path)
 
 def process_tif(tif_path, model, output_path):

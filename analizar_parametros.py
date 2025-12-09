@@ -56,8 +56,8 @@ def process_image_with_yolo(image_path, model):
 
 
 def main():
-    data_dir = '../Fluo-N2DL-HeLa (1)/Fluo-N2DL-HeLa/02'
-    gt_dir = '../Fluo-N2DL-HeLa (1)/Fluo-N2DL-HeLa/02_GT/TRA'
+    data_dir = './Fluo-N2DL-HeLa (1)/Fluo-N2DL-HeLa/02'
+    gt_dir = './Fluo-N2DL-HeLa (1)/Fluo-N2DL-HeLa/02_GT/TRA'
 
     ensemble_options = ['consensus', 'unanimous', 'affirmative']
     thresholds = [0.3, 0.5, 0.7]
